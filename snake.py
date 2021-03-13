@@ -117,7 +117,6 @@ class Game:
                 for point in self.snakes[j].body:
                     if self.snakes[i].body[0].x == point.x and self.snakes[i].body[0].y == point.y:
                         death.append(i)
-                        print(i)
         for i in death:
             self.snakes[i].alive = False
 
