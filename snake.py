@@ -1,6 +1,7 @@
 import pygame
-import time
+import math as m
 import random
+from easyAI import TwoPlayersGame, Human_Player, AI_Player, Negamax
 
 
 class COLORS:
@@ -46,26 +47,36 @@ class Snake:
             self.body[0].y = 0
 
 
-class Game:
+class Game(TwoPlayersGame):
     WIDTH = 600
     HEIGHT = 400
     BLOCK_SIZE = 10
     FOOD_QTY = 5
+    display = None
+    clock = None
+    font_style = None
 
-    def __init__(self):
+
+    def __init__(self, players):
         pygame.init()
-        self.display = pygame.display.set_mode(
+        Game.display = pygame.display.set_mode(
             (self.WIDTH, self.HEIGHT))
+        Game.clock = pygame.time.Clock()
+        Game.font_style = pygame.font.SysFont("verdana", 25)
+
+        # Define the players
+        self.players = players
+        # Define who starts the game
+        self.nplayer = 1
+
         pygame.display.set_caption('Snakes')
-        self.clock = pygame.time.Clock()
-        self.font_style = pygame.font.SysFont("verdana", 25)
         self.game_over = False
         self.game_close = False
         self.initGame()
 
     def initGame(self):
         self.food = []
-        for i in range(self.FOOD_QTY):
+        for _ in range(self.FOOD_QTY):
             self.addFood()
         self.snakes = [Snake(self.WIDTH//2, self.HEIGHT//2)]
         self.snakes.append(Snake(round(random.randrange(0, self.WIDTH - self.BLOCK_SIZE) / self.BLOCK_SIZE) *
@@ -76,20 +87,20 @@ class Game:
             posx = self.WIDTH / 3
         if posy == None:
             posy = self.HEIGHT / 3
-        text = self.font_style.render(msg, True, color)
+        text = Game.font_style.render(msg, True, color)
         posx -= text.get_rect().width/2
         posy -= text.get_rect().height/2
-        self.display.blit(text, [posx, posy])
+        Game.display.blit(text, [posx, posy])
 
     def drawSnakes(self):
         for i in range(len(self.snakes)):
             for point in self.snakes[i].body:
-                pygame.draw.rect(self.display, COLORS.white if i == 0 else COLORS.red, [
+                pygame.draw.rect(Game.display, COLORS.white if i == 0 else COLORS.red, [
                     point.x, point.y, self.BLOCK_SIZE, self.BLOCK_SIZE])
 
     def drawFood(self):
         for point in self.food:
-            pygame.draw.rect(self.display, COLORS.green, [
+            pygame.draw.rect(Game.display, COLORS.green, [
                 point.x, point.y, self.BLOCK_SIZE, self.BLOCK_SIZE])
 
     def addFood(self, i=None):
@@ -120,13 +131,63 @@ class Game:
         for i in death:
             self.snakes[i].alive = False
 
-    def check_end_game(self):
+    def is_over(self):
         return not all([snake.alive for snake in self.snakes])
+
+    def points_over_diamonds(self, indexPlayer, weight=0.05):
+        score = 0
+        for f in self.food:
+            score += (1 - (abs(self.snakes[indexPlayer].body[0].y - f.y) / self.HEIGHT)) + \
+                     (1 - (abs(self.snakes[indexPlayer].body[0].x - f.x) / self.WIDTH))
+        return score * weight
+
+    def points_over_enemy(self, indexPlayer, weight=0.2):
+        score = 0
+        opponent = (indexPlayer + 1) % 2
+        for b in self.snakes[indexPlayer].body:
+            distance = (1 - (abs(self.snakes[opponent].body[0].y - b.y) / self.HEIGHT)) + \
+                     (1 - (abs(self.snakes[opponent].body[0].x - b.x) / self.WIDTH))
+            score += m.log1p(m.e**(-distance*distance/2))
+        return score*weight
+
+
+    def scoring(self):
+        if not self.snakes[0].alive:
+            return -100
+        elif not self.snakes[1].alive:
+            return 100
+        else:
+            return 0
+            score = 0
+            score += self.points_over_diamonds(0)
+            score -= self.points_over_diamonds(1)
+            score += self.points_over_enemy(0)
+            score -= self.points_over_enemy(1)
+            return score
+
+    def possible_moves(self):
+        moves = [pygame.K_RIGHT, pygame.K_UP, pygame.K_LEFT, pygame.K_DOWN]
+        return [m for m in moves if self.snakes[self.nplayer - 1].directionKey != m ]
+        # return [m if self.snakes[self.nplayer - 1].directionKey != m else 0 for m in moves]
+
+    def make_move(self, move):
+        if move == pygame.K_LEFT and self.snakes[self.nplayer-1].directionKey != pygame.K_RIGHT:
+            self.snakes[self.nplayer-1].direction = [-self.BLOCK_SIZE, 0]
+            self.snakes[self.nplayer-1].directionKey = move
+        elif move == pygame.K_RIGHT and self.snakes[0].directionKey != pygame.K_LEFT:
+            self.snakes[self.nplayer-1].direction = [self.BLOCK_SIZE, 0]
+            self.snakes[self.nplayer-1].directionKey = move
+        elif move == pygame.K_UP and self.snakes[self.nplayer-1].directionKey != pygame.K_DOWN:
+            self.snakes[self.nplayer-1].direction = [0,-self.BLOCK_SIZE]
+            self.snakes[self.nplayer-1].directionKey = move
+        elif move == pygame.K_DOWN and self.snakes[0].directionKey != pygame.K_UP:
+            self.snakes[self.nplayer-1].direction = [0, self.BLOCK_SIZE]
+            self.snakes[self.nplayer-1].directionKey = move
 
     def gameLoop(self):
         while not self.game_over:
-            while self.check_end_game():
-                self.display.fill(COLORS.black)
+            while self.is_over():
+                Game.display.fill(COLORS.black)
                 self.message("Game over", COLORS.blue,
                              self.WIDTH / 2, self.HEIGHT/4)
                 if self.snakes[0].alive:
@@ -146,35 +207,23 @@ class Game:
                         self.initGame()
                         self.gameLoop()
 
+            humanMove = 0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.game_over = True
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT and self.snakes[0].directionKey != pygame.K_RIGHT:
-                        self.snakes[0].direction[0] = -self.BLOCK_SIZE
-                        self.snakes[0].direction[1] = 0
-                        self.snakes[0].directionKey = pygame.K_LEFT
-                    elif event.key == pygame.K_RIGHT and self.snakes[0].directionKey != pygame.K_LEFT:
-                        self.snakes[0].direction[0] = self.BLOCK_SIZE
-                        self.snakes[0].direction[1] = 0
-                        self.snakes[0].directionKey = pygame.K_RIGHT
-                    elif event.key == pygame.K_UP and self.snakes[0].directionKey != pygame.K_DOWN:
-                        self.snakes[0].direction[1] = -self.BLOCK_SIZE
-                        self.snakes[0].direction[0] = 0
-                        self.snakes[0].directionKey = pygame.K_UP
-                    elif event.key == pygame.K_DOWN and self.snakes[0].directionKey != pygame.K_UP:
-                        self.snakes[0].direction[1] = self.BLOCK_SIZE
-                        self.snakes[0].direction[0] = 0
-                        self.snakes[0].directionKey = pygame.K_DOWN
-                    elif event.key == pygame.K_ESCAPE:
+                    if event.key == pygame.K_ESCAPE:
                         self.game_over = True
+                    else:
+                        humanMove = event.key
+            self.play_move(humanMove)
 
-            self.display.fill(COLORS.black)
+            Game.display.fill(COLORS.black)
 
             # MOVING THE DUMMY ENEMY
-            self.snakes[1].direction[1] = self.BLOCK_SIZE
-            self.snakes[1].direction[0] = 0
-            self.snakes[1].directionKey = pygame.K_DOWN
+            ai_move = self.get_move()
+            self.play_move(ai_move)
+            # self.make_move(self.possible_moves()[random.randrange(0, 3)])
 
             self.collissionFood()
 
@@ -186,13 +235,13 @@ class Game:
             self.drawFood()
 
             pygame.display.update()
-            self.clock.tick(self.snakes[0].speed)
+            Game.clock.tick(self.snakes[0].speed)
         pygame.quit()
         quit()
 
 
 def main():
-    Game().gameLoop()
+    Game([ Human_Player(), AI_Player(Negamax(7)) ]).gameLoop()
 
 
 if __name__ == '__main__':
