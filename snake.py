@@ -134,38 +134,49 @@ class Game(TwoPlayersGame):
     def is_over(self):
         return not all([snake.alive for snake in self.snakes])
 
-    def points_over_diamonds(self, indexPlayer, weight=0.05):
-        score = 0
+    def points_over_diamonds(self, indexPlayer, weight=0.3):
+        scores = []
         for f in self.food:
-            score += (1 - (abs(self.snakes[indexPlayer].body[0].y - f.y) / self.HEIGHT)) + \
-                     (1 - (abs(self.snakes[indexPlayer].body[0].x - f.x) / self.WIDTH))
-        return score * weight
+            scores.append((1 - (abs(self.snakes[indexPlayer].body[0].y - f.y) / self.HEIGHT)) +
+                          (1 - (abs(self.snakes[indexPlayer].body[0].x - f.x) / self.WIDTH)))
+        scores = sorted(scores, reverse=True)
 
-    def points_over_enemy(self, indexPlayer, weight=0.2):
+        return (scores[0] + scores[1]*.606 +  scores[2] * .13)  * weight * self.FOOD_QTY
+
+    def points_over_enemy(self, indexPlayer, weight=.5):
         score = 0
         opponent = (indexPlayer + 1) % 2
+        weight_due_lenght = 3 # TODO
         for b in self.snakes[indexPlayer].body:
             distance = (1 - (abs(self.snakes[opponent].body[0].y - b.y) / self.HEIGHT)) + \
                      (1 - (abs(self.snakes[opponent].body[0].x - b.x) / self.WIDTH))
             score += m.log1p(m.e**(-distance*distance/2))
-        return score*weight
-
+        return score*weight * weight_due_lenght
 
     def scoring(self):
         if not self.snakes[0].alive:
-            return -100
+            score = -100
         elif not self.snakes[1].alive:
-            return 100
+            score = 100
         else:
-            return 0
             score = 0
             score += self.points_over_diamonds(0)
             score -= self.points_over_diamonds(1)
             score += self.points_over_enemy(0)
             score -= self.points_over_enemy(1)
-            return score
+        return score
 
     def possible_moves(self):
+        """TODO cosas raras pasan aqui.
+            Ademas de considerar el añadir restricciones de movimientos
+            como dice Ivan, ( que no estoy de acuerdo, porque las colisiones
+            se consideran en el scoring).
+            El modelo que ofrezco actualmente es defectuoso, o al menos negamax
+            toma mal los movimientos, en el sentido de que, si se añade la direccion
+            hacia adelante ( o no hacer nada, lo cual es equivalente), decide ir en
+            linea recta.
+            Si no se le añade esa opcion nula intercala entre movimientos arriba y derecha.
+        """
         moves = [pygame.K_RIGHT, pygame.K_UP, pygame.K_LEFT, pygame.K_DOWN]
         return [m for m in moves if self.snakes[self.nplayer - 1].directionKey != m ]
         # return [m if self.snakes[self.nplayer - 1].directionKey != m else 0 for m in moves]
@@ -241,7 +252,7 @@ class Game(TwoPlayersGame):
 
 
 def main():
-    Game([ Human_Player(), AI_Player(Negamax(7)) ]).gameLoop()
+    Game([ Human_Player(), AI_Player(Negamax(7, win_score=100)) ]).gameLoop()
 
 
 if __name__ == '__main__':
