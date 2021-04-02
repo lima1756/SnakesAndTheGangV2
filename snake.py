@@ -66,8 +66,9 @@ class Game(TwoPlayersGame):
     }
 
     OPPOSITE_MOVE = {pygame.K_RIGHT: pygame.K_LEFT, pygame.K_UP: pygame.K_DOWN,
-                    pygame.K_LEFT: pygame.K_RIGHT, pygame.K_DOWN: pygame.K_UP}
+                     pygame.K_LEFT: pygame.K_RIGHT, pygame.K_DOWN: pygame.K_UP}
 
+    MOVES = [pygame.K_RIGHT, pygame.K_UP, pygame.K_LEFT, pygame.K_DOWN]
 
     def __init__(self, players):
         pygame.init()
@@ -91,6 +92,9 @@ class Game(TwoPlayersGame):
         for _ in range(self.FOOD_QTY):
             self.addFood()
         self.snakes = [Snake(self.WIDTH//2, self.HEIGHT//2)]
+        # Setting some direction to player.
+        self.snakes[0].direction = self.DIRECTIONS[pygame.K_RIGHT]
+        self.snakes[0].directionKey = pygame.K_RIGHT
         self.snakes.append(Snake(round(random.randrange(0, self.WIDTH - self.BLOCK_SIZE) / self.BLOCK_SIZE) *
                                  self.BLOCK_SIZE, round(random.randrange(0, self.HEIGHT - self.BLOCK_SIZE) / self.BLOCK_SIZE) * self.BLOCK_SIZE))
 
@@ -156,10 +160,10 @@ class Game(TwoPlayersGame):
         for f in self.food:
             dy = abs(self.snakes[indexPlayer].body[0].y - f.y)
             dx = abs(self.snakes[indexPlayer].body[0].x - f.x)
-            dy = self.HEIGHT - dy if dy > self.HEIGHT / 2 else dy
-            dx = self.WIDTH - dx if dx > self.WIDTH / 2 else dx
+            dy = self.HEIGHT - dy if dy > self.HEIGHT / 2 else dy  # 0 <= dy <= self.HEIGHT / 2
+            dx = self.WIDTH - dx if dx > self.WIDTH / 2 else dx  # 0 <= dx <= self.WIDTH / 2
 
-            distance = (dy/self.HEIGHT) + (dx/self.WIDTH)
+            distance = (dy/self.HEIGHT) + (dx/self.WIDTH) # 0 <= distance <= 1
             score = 1 - distance
 
             scores.append(score)
@@ -170,17 +174,17 @@ class Game(TwoPlayersGame):
     def points_over_enemy(self, indexPlayer, weight=.1):
         score = 0
         opponent = (indexPlayer + 1) % 2
-        weight_due_lenght = 3 / (len(self.snakes[indexPlayer].body)**(0.8))
+        weight_due_lenght = 3 / (len(self.snakes[indexPlayer].body)**0.8)
         for b in self.snakes[indexPlayer].body:
-
             dx = abs(b.x - self.snakes[opponent].body[0].x)
-            dx = self.WIDTH - dx  if dx > self.WIDTH /2 else dx
+            dx = self.WIDTH - dx if dx > self.WIDTH / 2 else dx
 
             dy = abs(b.y - self.snakes[opponent].body[0].y)
-            dy = self.HEIGHT - dy  if dy > self.HEIGHT /2 else dy
+            dy = self.HEIGHT - dy if dy > self.HEIGHT / 2 else dy
+
             distance = (dy / self.HEIGHT) + (dx / self.WIDTH)
 
-            score += m.log1p(m.e**(2 - distance))
+            score += m.log1p(m.e**(1 - distance))
         return score*weight * weight_due_lenght
 
     def scoring(self):
@@ -194,7 +198,6 @@ class Game(TwoPlayersGame):
             score -= self.points_over_diamonds(1, weight=1)
             score += self.points_over_enemy(0, weight=.2)
             score -= self.points_over_enemy(1, weight=.2)
-            print(score)
         return score
 
     def check_avoid_auto_collision(self, move):
@@ -208,23 +211,23 @@ class Game(TwoPlayersGame):
 
     def possible_moves(self):
         direction = self.snakes[self.nplayer - 1].directionKey
-        possible_moves = [self.OPPOSITE_MOVE[d] for d in self.OPPOSITE_MOVE if direction != d]
+        possible_moves = [mm for mm in self.MOVES if self.OPPOSITE_MOVE[mm] != direction]
         possible_moves = [mm for mm in possible_moves if self.check_avoid_auto_collision(mm)]
         if len(possible_moves) == 0:
-            possible_moves = [self.OPPOSITE_MOVE[d] for d in self.OPPOSITE_MOVE if direction != d]
+            possible_moves = [mm for mm in self.MOVES if self.OPPOSITE_MOVE[mm] != direction]
             # doesn't matter this case, is dead already, only avoiding bug on negamax.
         return possible_moves
 
     def make_move(self, move):
         snake = self.snakes[self.nplayer-1]
-        if move in self.OPPOSITE_MOVE and snake.directionKey != self.OPPOSITE_MOVE[move]:
+        if move in self.MOVES and snake.directionKey != self.OPPOSITE_MOVE[move]:
             snake.direction = self.DIRECTIONS[move]
             snake.directionKey = move
         snake.move(self.WIDTH, self.HEIGHT, self.BLOCK_SIZE)
 
     def gameLoop(self):
         while not self.game_over:
-            while self.is_over():
+            while self.is_over() and not self.game_over:
                 Game.display.fill(COLORS.black)
                 self.message("Game over", COLORS.blue,
                              self.WIDTH / 2, self.HEIGHT/4)
@@ -241,15 +244,17 @@ class Game(TwoPlayersGame):
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         self.game_over = True
-                    if event.type == pygame.KEYDOWN:
+                        break
+                    elif event.type == pygame.KEYDOWN:
                         self.initGame()
                         self.gameLoop()
+                        break
 
             humanMove = 0
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.game_over = True
-                if event.type == pygame.KEYDOWN:
+                elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
                         self.game_over = True
                     else:
@@ -274,7 +279,7 @@ class Game(TwoPlayersGame):
 
 
 def main():
-    Game([ Human_Player(), AI_Player(Negamax(1, win_score=100)) ]).gameLoop()
+    Game([ Human_Player(), AI_Player(Negamax(3, win_score=100)) ]).gameLoop()
 
 
 if __name__ == '__main__':
