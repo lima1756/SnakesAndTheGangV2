@@ -52,8 +52,8 @@ class Snake:
 
 class Game(TwoPlayersGame):
     WIDTH = 600
-    HEIGHT = 400
-    BLOCK_SIZE = 10
+    HEIGHT = 450
+    BLOCK_SIZE = 15
     FOOD_QTY = 5
     display = None
     clock = None
@@ -203,8 +203,7 @@ class Game(TwoPlayersGame):
     def check_avoid_auto_collision(self, move):
         snake = self.snakes[self.nplayer - 1]
         for b in range(1, len(snake.body)):
-            if (not snake.growing) and \
-                    snake.body[0].x + self.DIRECTIONS[move][0] == snake.body[b].x and \
+            if  snake.body[0].x + self.DIRECTIONS[move][0] == snake.body[b].x and \
                     snake.body[0].y + self.DIRECTIONS[move][1] == snake.body[b].y:
                     return False
         return True
@@ -279,7 +278,7 @@ class Game(TwoPlayersGame):
 
 
 def main():
-    Game([ Human_Player(), AI_Player(Negamax(3, win_score=100)) ]).gameLoop()
+    Game([ Human_Player(), AI_Player(Negamax(3, win_score=200)) ]).gameLoop()
 
 
 if __name__ == '__main__':
