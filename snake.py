@@ -135,11 +135,11 @@ class Game(TwoPlayersGame):
                     self.addFood(i)
 
     def check_collision(self, i, j):
-        start = 1 if i == j else 0 # avoid head check herself.
+        start = 1 if i == j else 0  # avoid head check herself.
         for b in range(start, len(self.snakes[j].body)):
             if (not (i == j and self.snakes[i].growing)) and self.snakes[i].body[0].x == self.snakes[j].body[b].x \
                     and self.snakes[i].body[0].y == self.snakes[j].body[b].y:
-                    return True
+                return True
         return False
 
     def collision_snakes(self):
@@ -148,7 +148,7 @@ class Game(TwoPlayersGame):
         for i in range(total):
             for j in range(total):
                 if self.check_collision(i, j):
-                        death.append(i)
+                    death.append(i)
         for i in death:
             self.snakes[i].alive = False
 
@@ -160,16 +160,15 @@ class Game(TwoPlayersGame):
         for f in self.food:
             dy = abs(self.snakes[indexPlayer].body[0].y - f.y)
             dx = abs(self.snakes[indexPlayer].body[0].x - f.x)
-            dy = self.HEIGHT - dy if dy > self.HEIGHT / 2 else dy  # 0 <= dy <= self.HEIGHT / 2
-            dx = self.WIDTH - dx if dx > self.WIDTH / 2 else dx  # 0 <= dx <= self.WIDTH / 2
-
-            distance = (dy/self.HEIGHT) + (dx/self.WIDTH) # 0 <= distance <= 1
+            dy = self.HEIGHT - dy if dy > self.HEIGHT / \
+                2 else dy  # 0 <= dy <= self.HEIGHT / 2
+            dx = self.WIDTH - dx if dx > self.WIDTH / \
+                2 else dx  # 0 <= dx <= self.WIDTH / 2
+            distance = (dy/self.HEIGHT) + (dx/self.WIDTH)  # 0 <= distance <= 1
             score = 1 - distance
-
             scores.append(score)
         scores = sorted(scores, reverse=True)
-
-        return (scores[0] + scores[1] *.5 + scores[2] *.125) *weight
+        return (scores[0] + scores[1] * .5 + scores[2] * .125) * weight
 
     def points_over_enemy(self, indexPlayer, weight=.1):
         score = 0
@@ -200,20 +199,23 @@ class Game(TwoPlayersGame):
             score -= self.points_over_enemy(1, weight=.2)
         return score
 
-    def check_avoid_auto_collision(self, move):
-        snake = self.snakes[self.nplayer - 1]
-        for b in range(1, len(snake.body)):
-            if  snake.body[0].x + self.DIRECTIONS[move][0] == snake.body[b].x and \
-                    snake.body[0].y + self.DIRECTIONS[move][1] == snake.body[b].y:
+    def check_avoid_collision(self, move):
+        current_snake = self.snakes[self.nplayer - 1]
+        for snake in self.snakes:
+            for b in range(1, len(snake.body)):
+                if current_snake.body[0].x + self.DIRECTIONS[move][0] == snake.body[b].x and \
+                        current_snake.body[0].y + self.DIRECTIONS[move][1] == snake.body[b].y:
                     return False
         return True
 
     def possible_moves(self):
         direction = self.snakes[self.nplayer - 1].directionKey
-        possible_moves = [mm for mm in self.MOVES if self.OPPOSITE_MOVE[mm] != direction]
-        possible_moves = [mm for mm in possible_moves if self.check_avoid_auto_collision(mm)]
+        possible_moves = [
+            mm for mm in self.MOVES if self.OPPOSITE_MOVE[mm] != direction]
+        possible_moves = [
+            mm for mm in possible_moves if self.check_avoid_collision(mm)]
         if len(possible_moves) == 0:
-            possible_moves = [mm for mm in self.MOVES if self.OPPOSITE_MOVE[mm] != direction]
+            possible_moves = [direction]
             # doesn't matter this case, is dead already, only avoiding bug on negamax.
         return possible_moves
 
@@ -264,7 +266,8 @@ class Game(TwoPlayersGame):
 
             # MOVING THE DUMMY ENEMY
             ai_move = self.get_move()
-            self.play_move(ai_move) # self.make_move(self.possible_moves()[random.randrange(0, 3)])
+            # self.make_move(self.possible_moves()[random.randrange(0, 3)])
+            self.play_move(ai_move)
 
             self.collision_food()
             self.collision_snakes()
@@ -278,7 +281,7 @@ class Game(TwoPlayersGame):
 
 
 def main():
-    Game([ Human_Player(), AI_Player(Negamax(3, win_score=200)) ]).gameLoop()
+    Game([Human_Player(), AI_Player(Negamax(3, win_score=200))]).gameLoop()
 
 
 if __name__ == '__main__':
