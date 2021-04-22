@@ -1,0 +1,66 @@
+Movement: RotateLeft Sensor: ACCELEROMETER
+	Average: 3.021, 6.308, 5.798,
+	Standard Deviation: 13.453, 10.721, 9.445,
+	Kurtosis: -1.222, -1.271, 0.193,
+	Skewness: 0.181, 0.299, 1.044,
+Movement: RotateLeft Sensor: GYROSCOPIC
+	Average: -0.272, 0.268, -0.256,
+	Standard Deviation: 2.048, 2.117, 2.695,
+	Kurtosis: -0.805, -0.779, -1.238,
+	Skewness: 0.295, -0.353, -0.05,
+Movement: RotateLeft Sensor: MAGNETIC_SENSOR
+	Average: 22.156, -20.846, -10.403,
+	Standard Deviation: 4.164, 5.242, 5.318,
+	Kurtosis: -0.61, -1.087, -1.103,
+	Skewness: -0.276, 0.045, -0.054,
+
+
+Movement: RotateRight Sensor: ACCELEROMETER
+	Average: 2.314, 6.974, 4.765,
+	Standard Deviation: 13.356, 9.14, 9.355,
+	Kurtosis: -0.988, -1.225, 0.014,
+	Skewness: -0.019, 0.239, 0.963,
+Movement: RotateRight Sensor: GYROSCOPIC
+	Average: 0.151, -0.211, 0.236,
+	Standard Deviation: 2.356, 1.846, 2.135,
+	Kurtosis: 0.093, -0.653, -1.006,
+	Skewness: -0.497, 0.209, 0.09,
+Movement: RotateRight Sensor: MAGNETIC_SENSOR
+	Average: 18.393, -21.272, -4.728,
+	Standard Deviation: 7.015, 5.372, 7.446,
+	Kurtosis: -0.456, -0.238, -0.334,
+	Skewness: -0.734, 0.438, 0.348,
+
+
+Movement: ShakeHorizontally Sensor: ACCELEROMETER
+	Average: 1.094, 4.761, 4.639,
+	Standard Deviation: 23.668, 6.867, 9.943,
+	Kurtosis: -1.037, -0.307, -0.363,
+	Skewness: -0.03, 0.166, 0.084,
+Movement: ShakeHorizontally Sensor: GYROSCOPIC
+	Average: -0.077, -0.093, 0.065,
+	Standard Deviation: 1.383, 2.612, 3.075,
+	Kurtosis: 0.066, -0.871, -1.222,
+	Skewness: -0.101, 0.003, 0.471,
+Movement: ShakeHorizontally Sensor: MAGNETIC_SENSOR
+	Average: 22.603, -14.571, -5.359,
+	Standard Deviation: 6.806, 6.904, 7.387,
+	Kurtosis: -0.514, -0.687, -0.285,
+	Skewness: -0.957, 0.246, 0.501,
+
+
+Movement: ShakeVertically Sensor: ACCELEROMETER
+	Average: 6.458, 4.512, 6.141,
+	Standard Deviation: 15.992, 27.23, 10.937,
+	Kurtosis: -0.236, -1.187, -0.766,
+	Skewness: -0.701, 0.126, 0.098,
+Movement: ShakeVertically Sensor: GYROSCOPIC
+	Average: -0.008, 0.157, 0.006,
+	Standard Deviation: 3.737, 0.643, 4.793,
+	Kurtosis: -0.897, 0.406, -1.47,
+	Skewness: -0.227, 0.206, 0.254,
+Movement: ShakeVertically Sensor: MAGNETIC_SENSOR
+	Average: 18.164, -16.022, -1.581,
+	Standard Deviation: 9.791, 6.96, 7.491,
+	Kurtosis: -0.985, -0.76, -0.612,
+	Skewness: -0.208, 0.128, -0.081,
