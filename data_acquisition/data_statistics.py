@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 conditions = [('Rotate left', 1), ('Rotate right', 2),
               ('Shake horizontal', 3), ('Shake vertically', 4)]
 time = 40
-partioning = 0.25
+partioning = 0.5
 rate = time/partioning
 
 
@@ -115,6 +115,37 @@ for m in movement:
             freqsY, psdY = signal.welch(dataY)
             freqsZ, psdZ = signal.welch(dataZ)
 
+            with open("psd_data_details.txt", "a") as f:
+                f.write("PSD details:\n")
+                f.write("Movement: " + m + " Sensor: " + s + " Window: " + str(window)+ "\n")
+                f.write("\tPSD:\n")
+                f.write("\t" + str(freqsX) +"\t"+ str(psdX) + "\n")
+                f.write("\t" + str(freqsY) +"\t"+ str(psdY) + "\n")
+                f.write("\t" + str(freqsZ) +"\t"+ str(psdZ) + "\n")
+
+
+
+
+            # plotting the line 1 points
+            plt.plot(freqsX,psdX,
+                     label="Frecuencies on x")
+            # plotting the line 2 points
+            plt.plot(freqsY,psdY,
+                     label="Frecuencies on y")
+            # plotting the line 3 points
+            plt.plot(freqsZ,psdZ,
+                     label="Frecuencies on z")
+            plt.xlabel('Frecuency')
+            # Set the y axis label of the current axis.
+            plt.ylabel('Average Amplitude')
+            # Set a title of the current axes.
+            plt.title('PSD for' + "Movement: " + m + " Sensor: " + s + "window" + str(window))
+            # show a legend on the plot
+            plt.legend()
+            # Display a figure.
+            plt.show()
+            # """
+
             if not summary_psd[movement[m]][sensor[s]]:
                 summary_psd[movement[m]][sensor[s]].extend([{}, {}, {}])
 
@@ -153,7 +184,7 @@ for m in movement:
         # print("Movement: " + m + " Sensor: " + s )
         # print("\tpsd: " + str(summary_psd[movement[m]][sensor[s]]))
 
-        # Step 5: Plot PSD for each Sensor - Movement
+        """# Step 5: Plot PSD for each Sensor - Movement
 
         # plotting the line 1 points
         plt.plot([k for k in summary_psd[movement[m]][sensor[s]][0]],
@@ -163,7 +194,7 @@ for m in movement:
         plt.plot([k for k in summary_psd[movement[m]][sensor[s]][1]],
                  [summary_psd[movement[m]][sensor[s]][1][k] for k in summary_psd[movement[m]][sensor[s]][1]],
                  label="Frecuencies on y")
-        # plotting the line 2 points
+        # plotting the line 3 points
         plt.plot([k for k in summary_psd[movement[m]][sensor[s]][2]],
                  [summary_psd[movement[m]][sensor[s]][2][k] for k in summary_psd[movement[m]][sensor[s]][2]],
                  label="Frecuencies on z")
@@ -176,3 +207,4 @@ for m in movement:
         plt.legend()
         # Display a figure.
         plt.show()
+        """

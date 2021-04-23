@@ -1,3 +1,4 @@
+Windows of 0.25 sec.
 Movement: RotateLeft Sensor: ACCELEROMETER Window: 0
 	Average: -3.5032301587301586
 	Standard Deviation: [10.413348934628502, 17.607157634681897, 15.483717897570074]
