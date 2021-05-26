@@ -8,8 +8,8 @@ import matplotlib.pyplot as plt
 # Step 2, getting all the statistics for each window, sensor, movement.
 conditions = [('Rotate left', 1), ('Rotate right', 2),
               ('Shake horizontal', 3), ('Shake vertically', 4)]
-time = 30
-partioning = 0.4
+time = 40
+partioning = 0.5
 rate = time/partioning
 
 
@@ -195,9 +195,9 @@ for m in movement:
                     standard_deviation[movement[m]][sensor[s]][window] +
                     kurtosis[movement[m]][sensor[s]][window] +
                     skewness[movement[m]][sensor[s]][window] +
-                    summary_psd[movement[m]][sensor[s]][0] +
-                    summary_psd[movement[m]][sensor[s]][1] +
-                    summary_psd[movement[m]][sensor[s]][2])
+                    summary_psd_list_x +
+                    summary_psd_list_y +
+                    summary_psd_list_z)
 
         for i in range(len(summary_psd[movement[m]][sensor[s]])):
             for f in summary_psd[movement[m]][sensor[s]][i]:

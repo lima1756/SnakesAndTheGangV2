@@ -26,13 +26,6 @@ movement = {0: "RotateLeft",
             2: "ShakeHorizontally",
             3: "ShakeVertically", }
 
-data = np.genfromtxt('all_data_statistics.csv').tolist()
-
-data_per_sensor = []
-for i, s in enumerate(sensor):
-    curr_data = [r for r in data if r[1] == i]
-    data_per_sensor.append(curr_data)
-
 
 def train_clfs(data):
     y = np.array([int(x[0]) for x in data])
@@ -117,6 +110,11 @@ def train_clfs(data):
 
 
 if __name__ == "__main__":
+    data = np.genfromtxt('all_data_statistics.csv').tolist()
+    data_per_sensor = []
+    for i, s in enumerate(sensor):
+        curr_data = [r for r in data if r[1] == i]
+        data_per_sensor.append(curr_data)
     for data in data_per_sensor:
         curr_sensor = data[0][1]
         if verbose:

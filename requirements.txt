@@ -1,2 +1,15 @@
+autopep8==1.5.5
+cached-property==1.5.2
 easyAI==1.0.0.4
+evdev==1.4.0
+h5py==3.2.1
+Keras==2.4.3
+numpy==1.20.3
+pycodestyle==2.6.0
 pygame==2.0.1
+pynput==1.7.3
+python-xlib==0.30
+PyYAML==5.4.1
+scipy==1.6.3
+six==1.16.0
+toml==0.10.2
